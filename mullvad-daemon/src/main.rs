@@ -27,6 +27,21 @@ fn main() {
         std::process::exit(1);
     });
 
+    if runtime.block_on(rpc_uniqueness_check::is_another_instance_running()) {
+        eprintln!("Another instance of the daemon is already running");
+        std::process::exit(1)
+    }
+
+    let log_dir = init_daemon_logging(config).unwrap_or_else(|error| {
+        eprintln!("{error}");
+        std::process::exit(1)
+    });
+
+    log::trace!("Using configuration: {:?}", config);
+
+    log::warn!("##### mullvad-daemon/main.rs#main:!!!");
+
+    let exit_code = match runtime.block_on(run_platform(config, log_dir)) {
     let exit_code = match runtime.block_on(run()) {
         Ok(_) => 0,
         Err(error) => {
@@ -128,7 +143,6 @@ fn init_early_boot_logging(config: &cli::Config) {
     let _ = init_logger(config, None);
 }
 
-/// Initialize logging to stderr and to file (if provided).
 fn init_logger(config: &cli::Config, log_file: Option<PathBuf>) -> Result<(), String> {
     logging::init_logger(
         config.log_level,
@@ -152,6 +166,45 @@ fn get_log_dir(config: &cli::Config) -> Result<Option<PathBuf>, String> {
     }
 }
 
+#[cfg(windows)]
+async fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
+    if config.run_as_service {
+        system_service::run()
+    } else if config.register_service {
+        let install_result = system_service::install_service().map_err(|e| e.display_chain());
+        if install_result.is_ok() {
+            println!("Installed the service.");
+        }
+        install_result
+    } else {
+        run_standalone(log_dir).await
+    }
+}
+
+#[cfg(target_os = "linux")]
+async fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
+    if config.initialize_firewall_and_exit {
+        return crate::early_boot_firewall::initialize_firewall()
+            .await
+            .map_err(|err| format!("{err}"));
+    }
+    run_standalone(log_dir).await
+}
+
+#[cfg(target_os = "macos")]
+async fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
+    if config.launch_daemon_status {
+        std::process::exit(macos_launch_daemon::get_status() as i32);
+    }
+    run_standalone(log_dir).await
+}
+
+#[cfg(not(any(windows, target_os = "linux", target_os = "macos")))]
+async fn run_platform(_config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
+    log::warn!("##### mullvad-daemon/main.rs#run_platform !!!");
+    run_standalone(log_dir).await
+}
+
 async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
     #[cfg(any(target_os = "macos", target_os = "linux"))]
     if let Err(err) = tokio::fs::remove_file(mullvad_paths::get_rpc_socket_path()).await {
@@ -164,6 +217,7 @@ async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
         log::warn!("Running daemon as a non-administrator user, clients might refuse to connect");
     }
 
+    log::warn!("##### mullvad-daemon/main.rs#run_standalone !!!");
     let daemon = create_daemon(log_dir).await?;
 
     let shutdown_handle = daemon.shutdown_handle();
@@ -194,6 +248,7 @@ async fn create_daemon(
         .map_err(|e| e.display_chain_with_msg("Unable to get cache dir"))?;
 
     let command_channel = DaemonCommandChannel::new();
+    log::warn!("##### mullvad-daemon/main.rs#create_daemon !!!");
     let event_listener = spawn_management_interface(command_channel.sender())?;
 
     Daemon::start(
@@ -208,7 +263,7 @@ async fn create_daemon(
     .map_err(|e| e.display_chain_with_msg("Unable to initialize daemon"))
 }
 
-fn spawn_management_interface(
+pub extern fn spawn_management_interface(
     command_sender: DaemonCommandSender,
 ) -> Result<ManagementInterfaceEventBroadcaster, String> {
     let (socket_path, event_broadcaster) = ManagementInterfaceServer::start(command_sender)
