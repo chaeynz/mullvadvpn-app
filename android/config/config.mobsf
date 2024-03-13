@@ -15,14 +15,14 @@
 
   # The backend API communication is done by the Mullvad Daemon which is built in rust.
   - android_ssl_pinning
-  - android_certificate_pinning
+  #- android_certificate_pinning
   - android_certificate_transparency
 
   # Sensitive screens currently prevent screenshots.
-  - android_prevent_screenshot
+  #- android_prevent_screenshot
 
   # Will be investigate in the externally tracked issue DROID-529.
   - android_tapjacking
 
   # We've currently decided to support Android 8.
-  - android_manifest_insecure_minsdk
+  # - android_manifest_insecure_minsdk
