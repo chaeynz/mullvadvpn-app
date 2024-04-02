@@ -316,7 +316,6 @@ function SelectLocationContent() {
       </>
     );
   } else {
-    console.log(bridgeSettings);
     // Add the "Automatic" item
     const specialList: Array<SpecialLocation<SpecialBridgeLocationType>> = [
       {

@@ -1,5 +1,5 @@
-import { BridgeSettings, wrapConstraint } from "../../shared/daemon-rpc-types";
-import { BridgeSettingsRedux } from "../redux/settings/reducers";
+import { BridgeSettings, wrapConstraint } from '../../shared/daemon-rpc-types';
+import { BridgeSettingsRedux } from '../redux/settings/reducers';
 
 export function convertToBridgeSettings(bridgeSettings: BridgeSettingsRedux): BridgeSettings {
   return {
@@ -7,6 +7,6 @@ export function convertToBridgeSettings(bridgeSettings: BridgeSettingsRedux): Br
     normal: {
       ...bridgeSettings.normal,
       location: wrapConstraint(bridgeSettings.normal.location),
-    }
+    },
   };
 }

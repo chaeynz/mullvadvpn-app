@@ -40,6 +40,15 @@ function CustomBridgeForm() {
     [bridgeSettings, history.pop],
   );
 
+  const onDelete = useCallback(() => {
+    if (bridgeSettings.custom !== undefined) {
+      void updateBridgeSettings(
+        convertToBridgeSettings({ ...bridgeSettings, type: 'normal', custom: undefined }),
+      );
+      history.pop();
+    }
+  }, [bridgeSettings, history.pop]);
+
   return (
     <BackAction action={history.pop}>
       <Layout>
@@ -58,7 +67,12 @@ function CustomBridgeForm() {
                 </SettingsHeader>
 
                 <StyledSettingsContent>
-                  <ProxyForm proxy={bridgeSettings.custom} onSave={onSave} onCancel={history.pop} />
+                  <ProxyForm
+                    proxy={bridgeSettings.custom}
+                    onSave={onSave}
+                    onCancel={history.pop}
+                    onDelete={bridgeSettings.custom === undefined ? undefined : onDelete}
+                  />
                 </StyledSettingsContent>
               </StyledContent>
             </StyledNavigationScrollbars>

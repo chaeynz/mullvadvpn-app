@@ -17,7 +17,12 @@ import { SettingsRadioGroup } from './cell/SettingsRadioGroup';
 import { SettingsRow } from './cell/SettingsRow';
 import { SettingsSelect, SettingsSelectItem } from './cell/SettingsSelect';
 import { SettingsNumberInput, SettingsTextInput } from './cell/SettingsTextInput';
-import { SmallButton, SmallButtonGroup } from './SmallButton';
+import {
+  SmallButton,
+  SmallButtonColor,
+  SmallButtonGroup,
+  SmallButtonGroupStart,
+} from './SmallButton';
 
 type CombinedCustomProxy = CustomProxy | NamedCustomProxy;
 
@@ -25,6 +30,7 @@ interface ProxyFormProps<T extends CombinedCustomProxy> {
   proxy?: T;
   onSave: (proxy: T) => void;
   onCancel: () => void;
+  onDelete?: () => void;
 }
 
 export function ProxyForm(props: ProxyFormProps<CustomProxy>) {
@@ -64,6 +70,13 @@ function ProxyFormContainer<T extends CombinedCustomProxy>(props: ProxyFormConta
     <>
       <ProxyFormInner proxy={proxy.current} updateProxy={updateProxy} withName={props.withName} />
       <SmallButtonGroup>
+        {props.onDelete !== undefined && (
+          <SmallButtonGroupStart>
+            <SmallButton color={SmallButtonColor.red} onClick={props.onDelete}>
+              {messages.gettext('Delete')}
+            </SmallButton>
+          </SmallButtonGroupStart>
+        )}
         <SmallButton onClick={props.onCancel}>{messages.gettext('Cancel')}</SmallButton>
         <SmallButton onClick={save} disabled={!formSubmittable}>
           {props.proxy === undefined ? messages.gettext('Add') : messages.gettext('Save')}

@@ -24,29 +24,34 @@ function getButtonColors(color?: SmallButtonColor, disabled?: boolean) {
   }
 }
 
-const StyledSmallButton = styled.button<{ $color?: SmallButtonColor; disabled?: boolean }>(
-  smallText,
-  (props) => {
-    const buttonColors = getButtonColors(props.$color, props.disabled);
-    return {
-      height: '32px',
-      padding: '5px 16px',
-      border: 'none',
-      background: buttonColors.background,
-      color: props.disabled ? colors.white50 : colors.white,
-      borderRadius: '4px',
-      marginLeft: '12px',
+const StyledSmallButton = styled.button<{
+  $color?: SmallButtonColor;
+  disabled?: boolean;
+}>(smallText, (props) => {
+  const buttonColors = getButtonColors(props.$color, props.disabled);
+  return {
+    height: '32px',
+    padding: '5px 16px',
+    border: 'none',
+    background: buttonColors.background,
+    color: props.disabled ? colors.white50 : colors.white,
+    borderRadius: '4px',
+    marginLeft: '12px',
 
-      [`${StyledSmallButtonGrid} &&`]: {
-        marginLeft: 0,
-      },
+    [`${SmallButtonGroupStart} &&`]: {
+      marginLeft: 0,
+      marginRight: '12px',
+    },
 
-      '&&:hover': {
-        background: buttonColors.backgroundHover,
-      },
-    };
-  },
-);
+    [`${StyledSmallButtonGrid} &&`]: {
+      marginLeft: 0,
+    },
+
+    '&&:hover': {
+      background: buttonColors.backgroundHover,
+    },
+  };
+});
 
 interface SmallButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onClick' | 'color'> {
@@ -66,6 +71,12 @@ export const SmallButtonGroup = styled.div<{ $noMarginTop?: boolean }>((props) =
   margin: '0 23px',
   marginTop: props.$noMarginTop ? 0 : '30px',
 }));
+
+export const SmallButtonGroupStart = styled(SmallButtonGroup)({
+  flex: 1,
+  justifyContent: 'start',
+  margin: 0,
+});
 
 const StyledSmallButtonGrid = styled.div<{ $columns: number }>((props) => ({
   display: 'grid',
