@@ -14,14 +14,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
-import net.mullvad.mullvadvpn.model.CustomListsError
+import net.mullvad.mullvadvpn.model.CreateCustomListError
 
 @Composable
 fun CustomListNameTextField(
     modifier: Modifier = Modifier,
     name: String,
     isValidName: Boolean,
-    error: CustomListsError?,
+    error: String?,
     onValueChanged: (String) -> Unit,
     onSubmit: (String) -> Unit
 ) {
@@ -45,7 +45,7 @@ fun CustomListNameTextField(
             error?.let {
                 {
                     Text(
-                        text = it.errorString(),
+                        text = it,
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -61,12 +61,3 @@ fun CustomListNameTextField(
 
     LaunchedEffect(Unit) { focusRequester.requestFocus() }
 }
-
-@Composable
-private fun CustomListsError.errorString() =
-    stringResource(
-        when (this) {
-            CustomListsError.CustomListExists -> R.string.custom_list_error_list_exists
-            CustomListsError.OtherError -> R.string.error_occurred
-        }
-    )

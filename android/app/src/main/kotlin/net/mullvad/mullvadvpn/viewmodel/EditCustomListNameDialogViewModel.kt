@@ -13,12 +13,14 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListResult
 import net.mullvad.mullvadvpn.compose.state.UpdateCustomListUiState
-import net.mullvad.mullvadvpn.model.CustomListsError
+import net.mullvad.mullvadvpn.model.CreateCustomListError
+import net.mullvad.mullvadvpn.model.CustomListId
+import net.mullvad.mullvadvpn.model.ModifyCustomListError
+import net.mullvad.mullvadvpn.model.UpdateCustomListError
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
-import net.mullvad.mullvadvpn.usecase.customlists.CustomListsException
 
 class EditCustomListNameDialogViewModel(
-    private val customListId: String,
+    private val customListId: CustomListId,
     private val initialName: String,
     private val customListActionUseCase: CustomListActionUseCase
 ) : ViewModel() {
@@ -27,7 +29,7 @@ class EditCustomListNameDialogViewModel(
         Channel<EditCustomListNameDialogSideEffect>(1, BufferOverflow.DROP_OLDEST)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private val _error = MutableStateFlow<CustomListsError?>(null)
+    private val _error = MutableStateFlow<ModifyCustomListError?>(null)
 
     val uiState =
         _error
@@ -42,25 +44,11 @@ class EditCustomListNameDialogViewModel(
         viewModelScope.launch {
             customListActionUseCase
                 .performAction(
-                    CustomListAction.Rename(
-                        customListId = customListId,
-                        name = initialName,
-                        newName = name
-                    )
+                    CustomListAction.Rename(id = customListId, name = initialName, newName = name)
                 )
                 .fold(
-                    onSuccess = { result ->
-                        _uiSideEffect.send(
-                            EditCustomListNameDialogSideEffect.ReturnWithResult(result)
-                        )
-                    },
-                    onFailure = { exception ->
-                        if (exception is CustomListsException) {
-                            _error.emit(exception.error)
-                        } else {
-                            _error.emit(CustomListsError.OtherError)
-                        }
-                    }
+                    { _error.emit(it) },
+                    { _uiSideEffect.send(EditCustomListNameDialogSideEffect.ReturnWithResult(it)) }
                 )
         }
     }

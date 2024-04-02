@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class CustomList(
-    val id: String,
+    val id: CustomListId,
     val name: String,
     val locations: List<GeographicLocationConstraint>
 ) : Parcelable

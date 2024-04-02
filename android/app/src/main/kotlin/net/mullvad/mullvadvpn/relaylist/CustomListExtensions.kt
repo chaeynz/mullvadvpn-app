@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.relaylist
 
 import net.mullvad.mullvadvpn.model.CustomList
+import net.mullvad.mullvadvpn.model.CustomListId
 
 private fun CustomList.toRelayItemCustomList(
     relayCountries: List<RelayItem.Country>
@@ -30,4 +31,4 @@ fun RelayItem.CustomList.canAddLocation(location: RelayItem) =
     this.locations.none { it.code == location.code } &&
         this.locations.flatMap { it.descendants() }.none { it.code == location.code }
 
-fun List<RelayItem.CustomList>.getById(id: String) = this.find { it.id == id }
+fun List<RelayItem.CustomList>.getById(id: CustomListId) = this.find { it.id == id }
