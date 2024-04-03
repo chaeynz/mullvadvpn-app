@@ -125,6 +125,7 @@ export function CustomBridgeLocationRow(
     <StyledLocationRowContainerWithMargin ref={selectedRef}>
       <StyledLocationRowButton
         as="button"
+        onClick={props.onSelect}
         $level={0}
         disabled={props.source.disabled}
         {...background}>

@@ -9,7 +9,7 @@ import { filterSpecialLocations } from '../../lib/filter-locations';
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
 import { RoutePath } from '../../lib/routes';
-import { useNormalBridgeSettings, useNormalRelaySettings } from '../../lib/utilityHooks';
+import { useNormalRelaySettings } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
 import * as Cell from '../cell';
 import { useFilteredProviders } from '../Filter';
@@ -260,7 +260,7 @@ function SelectLocationContent() {
   const [onSelectBridgeRelay, onSelectBridgeSpecial] = useOnSelectBridgeLocation();
 
   const relaySettings = useNormalRelaySettings();
-  const bridgeSettings = useNormalBridgeSettings();
+  const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
 
   const allowAddToCustomList = useSelector((state) => state.settings.customLists.length > 0);
 
@@ -321,13 +321,13 @@ function SelectLocationContent() {
       {
         label: messages.pgettext('select-location-view', 'Custom bridge'),
         value: SpecialBridgeLocationType.custom,
-        selected: false,
+        selected: bridgeSettings?.type === 'custom',
         component: CustomBridgeLocationRow,
       },
       {
         label: messages.gettext('Automatic'),
         value: SpecialBridgeLocationType.closestToExit,
-        selected: bridgeSettings?.location === 'any',
+        selected: bridgeSettings?.type === 'normal' && bridgeSettings.normal?.location === 'any',
         component: AutomaticLocationRow,
       },
     ];

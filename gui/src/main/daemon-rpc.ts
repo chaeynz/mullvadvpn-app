@@ -84,7 +84,6 @@ const NETWORK_CALL_TIMEOUT = 10000;
 const CHANNEL_STATE_TIMEOUT = 1000 * 60 * 60;
 
 const noConnectionError = new Error('No connection established to daemon');
-const configNotSupported = new Error('Setting custom settings is not supported');
 const invalidErrorStateCause = new Error(
   'VPN_PERMISSION_DENIED is not a valid error state cause on desktop',
 );
@@ -349,11 +348,11 @@ export class DaemonRpc {
   public async setBridgeSettings(bridgeSettings: BridgeSettings): Promise<void> {
     const grpcBridgeSettings = new grpcTypes.BridgeSettings();
 
-    if (bridgeSettings.type === 'custom') {
-      throw configNotSupported;
-    }
-
-    grpcBridgeSettings.setBridgeType(grpcTypes.BridgeSettings.BridgeType.NORMAL);
+    grpcBridgeSettings.setBridgeType(
+      bridgeSettings.type === 'normal'
+        ? grpcTypes.BridgeSettings.BridgeType.NORMAL
+        : grpcTypes.BridgeSettings.BridgeType.CUSTOM,
+    );
 
     const normalSettings = convertToNormalBridgeSettings(bridgeSettings.normal);
     grpcBridgeSettings.setNormal(normalSettings);
