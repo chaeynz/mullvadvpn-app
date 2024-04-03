@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.relaylist
 
 import net.mullvad.mullvadvpn.model.CustomListId
-import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 
 sealed interface RelayItem {
