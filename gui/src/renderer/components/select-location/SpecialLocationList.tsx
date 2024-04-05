@@ -122,7 +122,7 @@ export function CustomBridgeLocationRow(
   const navigate = useCallback(() => history.push(RoutePath.editCustomBridge), [history.push]);
 
   return (
-    <StyledLocationRowContainerWithMargin ref={selectedRef}>
+    <StyledLocationRowContainerWithMargin ref={selectedRef} disabled={props.source.disabled}>
       <StyledLocationRowButton
         as="button"
         onClick={props.onSelect}

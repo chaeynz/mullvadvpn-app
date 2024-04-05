@@ -114,19 +114,22 @@ export function useOnSelectBridgeLocation() {
     [bridgeSettings],
   );
 
-  const onSelectSpecial = useCallback((location: SpecialBridgeLocationType) => {
-    switch (location) {
-      default: // TODO
-      case SpecialBridgeLocationType.closestToExit:
-        return setLocation({
-          ...bridgeSettings,
-          type: 'normal',
-          normal: { ...bridgeSettings.normal, location: 'any' },
-        });
-      case SpecialBridgeLocationType.custom:
-        return setLocation(convertToBridgeSettings({ ...bridgeSettings, type: 'custom' }));
-    }
-  }, []);
+  const onSelectSpecial = useCallback(
+    (location: SpecialBridgeLocationType) => {
+      switch (location) {
+        default: // TODO
+        case SpecialBridgeLocationType.closestToExit:
+          return setLocation({
+            ...bridgeSettings,
+            type: 'normal',
+            normal: { ...bridgeSettings.normal, location: 'any' },
+          });
+        case SpecialBridgeLocationType.custom:
+          return setLocation(convertToBridgeSettings({ ...bridgeSettings, type: 'custom' }));
+      }
+    },
+    [bridgeSettings],
+  );
 
   return [onSelectRelay, onSelectSpecial] as const;
 }

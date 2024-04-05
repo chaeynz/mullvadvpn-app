@@ -40,7 +40,9 @@ function CustomBridgeForm() {
 
   const onSave = useCallback(
     (newBridge: CustomProxy) => {
-      void updateBridgeSettings(convertToBridgeSettings({ ...bridgeSettings, custom: newBridge }));
+      void updateBridgeSettings(
+        convertToBridgeSettings({ ...bridgeSettings, custom: newBridge, type: 'custom' }),
+      );
       history.pop();
     },
     [bridgeSettings, history.pop],

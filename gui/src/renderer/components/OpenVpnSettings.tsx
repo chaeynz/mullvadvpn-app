@@ -18,7 +18,6 @@ import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { useBoolean } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
-import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import Selector, { SelectorItem } from './cell/Selector';
@@ -33,6 +32,7 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
+import { SmallButton } from './SmallButton';
 
 const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;
@@ -359,13 +359,13 @@ function BridgeModeSelector() {
         type={ModalAlertType.caution}
         title={messages.pgettext('openvpn-settings-view', 'Enable bridge mode?')}
         message={messages.gettext('This setting increases latency. Use only if needed.')}
-        buttons={[
-          <AppButton.RedButton key="confirm" onClick={confirmBridgeState}>
-            {messages.gettext('Enable anyway')}
-          </AppButton.RedButton>,
-          <AppButton.BlueButton key="back" onClick={hideConfirmationDialog}>
-            {messages.gettext('Back')}
-          </AppButton.BlueButton>,
+        gridButtons={[
+          <SmallButton key="cancel" onClick={hideConfirmationDialog}>
+            {messages.gettext('Cancel')}
+          </SmallButton>,
+          <SmallButton key="confirm" onClick={confirmBridgeState}>
+            {messages.gettext('Enable')}
+          </SmallButton>,
         ]}
         close={hideConfirmationDialog}
       />

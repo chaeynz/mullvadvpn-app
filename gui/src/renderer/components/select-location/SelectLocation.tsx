@@ -322,6 +322,7 @@ function SelectLocationContent() {
         label: messages.pgettext('select-location-view', 'Custom bridge'),
         value: SpecialBridgeLocationType.custom,
         selected: bridgeSettings?.type === 'custom',
+        disabled: bridgeSettings?.custom === undefined,
         component: CustomBridgeLocationRow,
       },
       {
