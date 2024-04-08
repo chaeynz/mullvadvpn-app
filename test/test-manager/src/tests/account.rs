@@ -320,7 +320,8 @@ pub async fn test_automatic_wireguard_rotation(
     const KEY_ROTATION_TIMEOUT: Duration = Duration::from_secs(100);
 
     log::info!("Listening for device daemon event");
-    let new_key = tokio::time::timeout(
+
+    let handle = tokio::task::spawn(tokio::time::timeout(
         KEY_ROTATION_TIMEOUT,
         helpers::find_daemon_event(
             mullvad_client.events_listen().await.unwrap(),
@@ -332,18 +333,34 @@ pub async fn test_automatic_wireguard_rotation(
                 }
             },
         ),
-    )
-    .await
-    .map_err(|_error| Error::Daemon(String::from("Tunnel event listener timed out")))?
-    .map(|device_event| {
-        device_event
-            .new_state
-            .into_device()
-            .expect("Could not get device")
-            .device
-            .pubkey
-    })?;
+    ));
 
-    assert_ne!(old_key, new_key);
+    let new_key = mullvad_client
+        .get_device()
+        .await
+        .unwrap()
+        .into_device()
+        .expect("Could not get device")
+        .device
+        .pubkey;
+
+    if new_key == old_key {
+        // Not yet updated
+        let new_key = handle
+            .await
+            .unwrap()
+            .map_err(|_error| Error::Daemon(String::from("Tunnel event listener timed out")))?
+            .map(|device_event| {
+                device_event
+                    .new_state
+                    .into_device()
+                    .expect("Could not get device")
+                    .device
+                    .pubkey
+            })?;
+
+        assert_ne!(old_key, new_key);
+    }
+
     Ok(())
 }
