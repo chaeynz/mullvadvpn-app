@@ -287,37 +287,49 @@ pub async fn test_automatic_wireguard_rotation(
         .expect("Could not get device")
         .device
         .pubkey;
-
+    log::info!("old_key: {old_key}");
     // Stop daemon
+    log::info!("Stopping deamon");
     rpc.stop_mullvad_daemon()
         .await
         .expect("Could not stop system service");
 
+    log::info!("Stopped deamon");
     // Open device.json and change created field to more than 7 days ago
+    log::info!("Mutating device.json");
     rpc.make_device_json_old()
         .await
         .expect("Could not change device.json to have an old created timestamp");
 
+    log::info!("Mutated device.json");
     // Start daemon
+    log::info!("Starting deamon");
     rpc.start_mullvad_daemon()
         .await
         .expect("Could not start system service");
+    log::info!("Started deamon");
 
     // NOTE: Need to create a new `mullvad_client` here after the restart otherwise we can't
     // communicate with the daemon
+    log::info!("Reconnecting to daemon");
     drop(mullvad_client);
     let mut mullvad_client = ctx.rpc_provider.new_client().await;
+    log::info!("Reconnected to daemon");
 
     // Verify rotation has happened after a minute
     const KEY_ROTATION_TIMEOUT: Duration = Duration::from_secs(100);
 
+    log::info!("Listening for device daemon event");
     let new_key = tokio::time::timeout(
         KEY_ROTATION_TIMEOUT,
         helpers::find_daemon_event(
             mullvad_client.events_listen().await.unwrap(),
-            |daemon_event| match daemon_event {
-                DaemonEvent::Device(device_event) => Some(device_event),
-                _ => None,
+            |daemon_event| {
+                log::info!("Got daemon event: {daemon_event:?}");
+                match daemon_event {
+                    DaemonEvent::Device(device_event) => Some(device_event),
+                    _ => None,
+                }
             },
         ),
     )
